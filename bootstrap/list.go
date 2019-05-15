@@ -1,6 +1,6 @@
 package bootstrap
 
-import "github.com/dtylman/gowd"
+import "github.com/marcelocorreia/gowd"
 
 //ListItems a list of elements
 type ListItems []*gowd.Element

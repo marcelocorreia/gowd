@@ -1,6 +1,6 @@
 package bootstrap
 
-import "github.com/dtylman/gowd"
+import "github.com/marcelocorreia/gowd"
 
 //NewInputGroup creates new bootsrap input group from the given elements
 func NewInputGroup(elems ...*gowd.Element) *gowd.Element {

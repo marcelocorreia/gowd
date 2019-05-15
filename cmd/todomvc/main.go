@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/dtylman/gowd"
+	"github.com/marcelocorreia/gowd"
 	"os"
 )
 

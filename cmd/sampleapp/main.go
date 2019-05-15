@@ -1,87 +1,65 @@
 package main
 
 import (
-	"fmt"
-	"github.com/dtylman/gowd"
-	"github.com/dtylman/gowd/bootstrap"
-	"math/rand"
+	"github.com/marcelocorreia/gowd"
+
+	"github.com/marcelocorreia/gowd/bootstrap"
 	"time"
+	"fmt"
 )
 
-type body struct {
-	*gowd.Element
-	txt         *gowd.Element
-	progressBar *bootstrap.ProgressBar
-	btnStart    *gowd.Element
-}
-
-func newBody() *body {
-	b := new(body)
-	b.Element = bootstrap.NewContainer(true)
-	b.AddElement(gowd.NewElement("hr"))
-	pnl := bootstrap.NewPanel(bootstrap.PanelDefault)
-	pnl.AddTitle("Title")
-	b.txt = gowd.NewStyledText("Hello world", gowd.Heading1)
-	pnl.AddToBody(b.txt)
-	b.AddElement(pnl.Element)
-
-	for i := 0; i < 3; i++ {
-		input := bootstrap.NewFormInput(bootstrap.InputTypeText, fmt.Sprintf("Question %v:", i))
-		input.OnEvent(gowd.OnChange, b.inputChanged)
-		b.AddElement(input.Element)
-	}
-
-	row := bootstrap.NewRow()
-	column := bootstrap.NewColumn(bootstrap.ColumnLarge, 6)
-	b.btnStart = bootstrap.NewButton(bootstrap.ButtonPrimary, "Start")
-	b.btnStart.OnEvent(gowd.OnClick, b.btnStartClick)
-	column.AddElement(b.btnStart)
-	row.AddElement(column)
-
-	column = bootstrap.NewColumn(bootstrap.ColumnLarge, 6)
-	btnClose := bootstrap.NewLinkButton("Close")
-	btnClose.SetAttribute(gowd.OnClick, "window.close();")
-
-	column.AddElement(btnClose)
-	row.AddElement(column)
-
-	b.AddElement(row)
-
-	b.AddElement(gowd.NewElement("hr"))
-
-	b.progressBar = bootstrap.NewProgressBar()
-	b.progressBar.Hide()
-	b.AddElement(b.progressBar.Element)
-
-	b.AddElement(gowd.NewElement("hr"))
-
-	return b
-}
-
-func (b *body) btnStartClick(sender *gowd.Element, event *gowd.EventElement) {
-	b.AddElement(bootstrap.NewAlert("Started!", fmt.Sprintf("Started on %v", time.Now()), bootstrap.AlertInfo, true))
-	go func() {
-		b.btnStart.Disable()
-		b.progressBar.Show()
-		defer func() {
-			b.progressBar.Hide()
-			b.btnStart.Enable()
-			b.Render()
-		}()
-
-		for i := 0; i <= 100; i++ {
-			b.progressBar.SetText(fmt.Sprintf("Working on it (%v percent done)", i))
-			b.progressBar.SetPercent(i)
-			time.Sleep(time.Duration(rand.Uint32() / 30))
-			b.Render()
-		}
-	}()
-}
-
-func (b *body) inputChanged(sender *gowd.Element, event *gowd.EventElement) {
-	b.txt.SetText(fmt.Sprintf("Text from %v: %v", sender.GetID(), sender.Kids[1].GetValue()))
-}
+var body *gowd.Element
 
 func main() {
-	gowd.Run(newBody().Element)
+	//creates a new bootstrap fluid container
+	body = bootstrap.NewContainer(false)
+	// add some elements using the object model
+	div := bootstrap.NewElement("div", "well")
+	row := bootstrap.NewRow(bootstrap.NewColumn(bootstrap.ColumnLarge, 6, div))
+	body.AddElement(row)
+	// add some other elements from HTML
+	div.AddHTML(`<div class="dropdown">
+	<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example
+	<span class="caret"></span></button>
+	<ul class="dropdown-menu" id="dropdown-menu">
+	<li><a href="#">HTML</a></li>
+	<li><a href="#">CSS</a></li>
+	<li><a href="#">JavaScript</a></li>
+	</ul>
+	</div>`, nil)
+	// add a button to show a progress bar
+	btn := bootstrap.NewButton(bootstrap.ButtonPrimary, "Start")
+	btn.OnEvent(gowd.OnClick, btnClicked)
+	row.AddElement(bootstrap.NewColumn(bootstrap.ColumnLarge, 4, bootstrap.NewElement("div", "well", btn)))
+
+	//start the ui loop
+	gowd.Run(body)
+}
+
+// happens when the 'start' button is clicked
+func btnClicked(sender *gowd.Element, event *gowd.EventElement) {
+	// adds a text and progress bar to the body
+	text := body.AddElement(gowd.NewStyledText("Working...", gowd.BoldText))
+	progressBar := bootstrap.NewProgressBar()
+	body.AddElement(progressBar.Element)
+
+	// makes the body stop responding to user events
+	body.Disable()
+
+	// clean up - remove the added elements
+	defer func() {
+		body.RemoveElement(text)
+		body.RemoveElement(progressBar.Element)
+		body.Enable()
+	}()
+
+	// render the progress bar
+	for i := 0; i <= 123; i++ {
+		progressBar.SetValue(i, 123)
+		text.SetText(fmt.Sprintf("Working %v", i))
+		time.Sleep(time.Millisecond * 20)
+		// this will cause the body to be refreshed
+		body.Render()
+	}
+
 }

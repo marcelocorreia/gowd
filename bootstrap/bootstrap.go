@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"fmt"
-	"github.com/dtylman/gowd"
+	"github.com/marcelocorreia/gowd"
 )
 
 //NewElement returns new bootstrap element

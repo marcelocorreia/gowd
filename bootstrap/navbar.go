@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/dtylman/gowd"
+	"github.com/marcelocorreia/gowd"
 )
 
 /*

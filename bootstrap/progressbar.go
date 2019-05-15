@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"errors"
 	"fmt"
-	"github.com/dtylman/gowd"
+	"github.com/marcelocorreia/gowd"
 	"strconv"
 )
 
